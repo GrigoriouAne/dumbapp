@@ -3,14 +3,24 @@ import "./App.css";
 import musicFile from "./assets/music/dumbapp.mp3"; 
 import slapSound from "./assets/music/slap.mp3";
 import emailjs from "@emailjs/browser";
+import sadImage1 from "./assets/sad/sad1.webp";
+import sadImage2 from "./assets/sad/sad2.jpg";
+import sadImage3 from "./assets/sad/sad3.jpg";
+import sadImage4 from "./assets/sad/sad4.avif";
+import sadImage5 from "./assets/sad/sad5.jpg";
+
 
 function App() {
   const [page, setPage] = useState("start");
-  const [yesPosition, setYesPosition] = useState({ top: 0, left: 0 });
-  const [yesHasMoved, setYesHasMoved] = useState(false);
+  const [noPosition, setNoPosition] = useState({ top: 0, left: 0 });
+  const [noHasMoved, setNoHasMoved] = useState(false);
   const audioRef = useRef(null);
   const slapAudioRef = useRef(null);
+  const startButtonsRef = useRef(null);
+  const yesButtonRef = useRef(null);
+  const noButtonRef = useRef(null);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [sadStep, setSadStep] = useState(0);
 
   const toggleMusic = async () => {
     if (!audioRef.current) return;
@@ -37,32 +47,97 @@ function App() {
   const [isSending, setIsSending] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
 
-  const moveYesButton = () => {
+  const moveNoButton = (event) => {
+    if (!startButtonsRef.current || !noButtonRef.current || !yesButtonRef.current) return;
+
+    const area = startButtonsRef.current.getBoundingClientRect();
+    const noRect = noButtonRef.current.getBoundingClientRect();
+    const yesRect = yesButtonRef.current.getBoundingClientRect();
+
     const isMobile = window.innerWidth <= 600;
 
-    const desktopPositions = [
-      { top: 0, left: 20 },
-      { top: 0, left: 390 },
-      { top: 70, left: 20 },
-      { top: 70, left: 390 },
-      { top: 125, left: 20 },
-      { top: 125, left: 390 },
-    ];
+    let pointerX;
+    let pointerY;
 
-    const mobilePositions = [
-      { top: 0, left: 10 },
-      { top: 60, left: 10 },
-      { top: 120, left: 10 },
-      { top: 0, left: 95 },
-      { top: 60, left: 95 },
-      { top: 120, left: 95 },
-    ];
+    if (event.touches && event.touches.length > 0) {
+      pointerX = event.touches[0].clientX - area.left;
+      pointerY = event.touches[0].clientY - area.top;
+    } else {
+      pointerX = event.clientX - area.left;
+      pointerY = event.clientY - area.top;
+    }
 
-    const positions = isMobile ? mobilePositions : desktopPositions;
-    const randomPosition = positions[Math.floor(Math.random() * positions.length)];
+    let currentLeft = noHasMoved ? noPosition.left : noRect.left - area.left;
+    let currentTop = noHasMoved ? noPosition.top : noRect.top - area.top;
 
-    setYesHasMoved(true);
-    setYesPosition(randomPosition);
+    const buttonWidth = noRect.width;
+    const buttonHeight = noRect.height;
+
+    const noCenterX = currentLeft + buttonWidth / 2;
+    const noCenterY = currentTop + buttonHeight / 2;
+
+    let dx = noCenterX - pointerX;
+    let dy = noCenterY - pointerY;
+
+    const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+
+    dx = dx / distance;
+    dy = dy / distance;
+
+    const step = isMobile ? 28 : 38;
+
+    let nextLeft = currentLeft + dx * step;
+    let nextTop = currentTop + dy * step;
+
+    const maxLeft = area.width - buttonWidth;
+    const maxTop = area.height - buttonHeight;
+
+    nextLeft = Math.max(0, Math.min(nextLeft, maxLeft));
+    nextTop = Math.max(0, Math.min(nextTop, maxTop));
+
+    const yesSafeZone = {
+      left: yesRect.left - area.left - 12,
+      right: yesRect.right - area.left + 12,
+      top: yesRect.top - area.top - 12,
+      bottom: yesRect.bottom - area.top + 12,
+    };
+
+    const noNextBox = {
+      left: nextLeft,
+      right: nextLeft + buttonWidth,
+      top: nextTop,
+      bottom: nextTop + buttonHeight,
+    };
+
+    const overlapsYes =
+      noNextBox.left < yesSafeZone.right &&
+      noNextBox.right > yesSafeZone.left &&
+      noNextBox.top < yesSafeZone.bottom &&
+      noNextBox.bottom > yesSafeZone.top;
+
+    if (overlapsYes) {
+      if (isMobile) {
+        nextLeft = Math.min(maxLeft, yesSafeZone.right + 18);
+        nextTop = Math.max(yesSafeZone.bottom + 18, nextTop);
+
+        if (nextLeft > maxLeft) {
+          nextLeft = 0;
+        }
+
+        if (nextTop > maxTop) {
+          nextTop = maxTop;
+        }
+      } else {
+        nextLeft = area.width / 2 + 70;
+        nextTop = Math.max(nextTop, 90);
+      }
+    }
+
+    setNoHasMoved(true);
+    setNoPosition({
+      top: nextTop,
+      left: nextLeft,
+    });
   };
 
   const doSlap = () => {
@@ -129,6 +204,23 @@ function App() {
     }
   }
 
+  const sadLoopImages = [sadImage2, sadImage3, sadImage4, sadImage5];
+
+  const currentSadImage =
+    sadStep === 0
+      ? sadImage1
+      : sadLoopImages[(sadStep - 1) % sadLoopImages.length];
+
+  const sadText =
+    sadStep === 0
+      ? "Just kidding... you can say no if you want."
+      : "Hehehe... no, really, if you want, you can say no.";
+
+  const handleSadNo = () => {
+    doSlap();
+    setSadStep((prev) => prev + 1);
+  };
+
   return (
     <div className={`app ${shake ? "shake" : ""}`}>
       <audio ref={audioRef} src={musicFile} loop preload="auto" />
@@ -163,53 +255,68 @@ function App() {
           <h1>Will you go on a date with me?</h1>
           <p className="subtitle">Please choose carefully 🌸</p>
 
-          <div className={`buttons startButtons ${yesHasMoved ? "yesMoved" : ""}`}>
+          <div
+            ref={startButtonsRef}
+            className={`buttons startButtons ${noHasMoved ? "noMoved" : ""}`}
+          >
             <button
-              className={`btn yes ${yesHasMoved ? "runaway" : ""}`}
-              style={
-                yesHasMoved
-                  ? {
-                      top: `${yesPosition.top}px`,
-                      left: `${yesPosition.left}px`,
-                    }
-                  : undefined
-              }
-              onClick={(e) => {
-                e.preventDefault();
-                moveYesButton();
-              }}
-              onTouchStart={(e) => {
-                e.preventDefault();
-                moveYesButton();
+              ref={yesButtonRef}
+              className="btn yes"
+              onClick={() => {
+                setSadStep(0);
+                setPage("sad");
               }}
             >
               YES 💗
             </button>
 
-            <button className="btn no" onClick={() => setPage("sad")}>
+            <button
+              ref={noButtonRef}
+              className={`btn no ${noHasMoved ? "runawayNo" : ""}`}
+              style={
+                noHasMoved
+                  ? {
+                      top: `${noPosition.top}px`,
+                      left: `${noPosition.left}px`,
+                    }
+                  : undefined
+              }
+              onMouseEnter={(e) => moveNoButton(e)}
+              onMouseMove={(e) => moveNoButton(e)}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                moveNoButton(e);
+              }}
+              onTouchMove={(e) => {
+                e.preventDefault();
+                moveNoButton(e);
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                moveNoButton(e);
+              }}
+            >
               no... 🙈
             </button>
+            {noHasMoved && <span className="noPlaceholder" />}
           </div>
         </div>
       )}
 
       {page === "sad" && (
         <div className="card">
-          <div className="imageBox sadBunny">🥺</div>
+          <div className="imageBox sadImageBox">
+            <img src={currentSadImage} alt="funny reaction" />
+          </div>
 
-          <h1>You chose no?</h1>
-          <p className="subtitle">
-            Ouch... that hurt a little.
-            <br />
-            Please try again 🥺
-          </p>
+          <h1>{sadText}</h1>
 
           <div className="buttons">
             <button className="btn yes" onClick={() => setPage("surprise")}>
               YES 💗
             </button>
 
-            <button className="btn no" onClick={doSlap}>
+            <button className="btn no" onClick={handleSadNo}>
               no...
             </button>
           </div>
@@ -223,7 +330,7 @@ function App() {
           <div className="imageBox">😭</div>
 
           <h1>WAIT... YOU ACTUALLY SAID YES??</h1>
-          <p className="subtitle">I was so ready for you to say no 😭</p>
+          <p className="subtitle">Wow... I didn’t expect you to say it on the first try 😭</p>
 
           <button className="btn yes big" onClick={() => setPage("activity")}>
             okay okay! →
