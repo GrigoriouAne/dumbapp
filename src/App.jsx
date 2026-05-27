@@ -2,10 +2,12 @@ import { useMemo, useRef, useState } from "react";
 import "./App.css";
 import musicFile from "./assets/music/dumbapp.mp3"; 
 import slapSound from "./assets/music/slap.mp3";
+import emailjs from "@emailjs/browser";
 
 function App() {
   const [page, setPage] = useState("start");
   const [yesPosition, setYesPosition] = useState({ top: 0, left: 0 });
+  const [yesHasMoved, setYesHasMoved] = useState(false);
   const audioRef = useRef(null);
   const slapAudioRef = useRef(null);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
@@ -32,15 +34,35 @@ function App() {
   const [choice, setChoice] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const moveYesButton = () => {
-    const randomTop = Math.floor(Math.random() * 120) - 60;
-    const randomLeft = Math.floor(Math.random() * 220) - 110;
+    const isMobile = window.innerWidth <= 600;
 
-    setYesPosition({
-      top: randomTop,
-      left: randomLeft,
-    });
+    const desktopPositions = [
+      { top: 0, left: 20 },
+      { top: 0, left: 390 },
+      { top: 70, left: 20 },
+      { top: 70, left: 390 },
+      { top: 125, left: 20 },
+      { top: 125, left: 390 },
+    ];
+
+    const mobilePositions = [
+      { top: 0, left: 10 },
+      { top: 0, left: 150 },
+      { top: 70, left: 10 },
+      { top: 70, left: 150 },
+      { top: 135, left: 10 },
+      { top: 135, left: 150 },
+    ];
+
+    const positions = isMobile ? mobilePositions : desktopPositions;
+    const randomPosition = positions[Math.floor(Math.random() * positions.length)];
+
+    setYesHasMoved(true);
+    setYesPosition(randomPosition);
   };
 
   const doSlap = () => {
@@ -59,6 +81,33 @@ function App() {
       setShake(false);
       setSlapVisible(false);
     }, 700);
+  };
+
+  const sendDateResponse = async () => {
+    if (!choice || !date || !time) return;
+
+    setIsSending(true);
+
+    try {
+      await emailjs.send(
+        "service_6o9zavl",
+        "template_erfij4t",
+        {
+          plan: choice,
+          date: date,
+          time: time,
+        },
+        "qB89miUVx5SLHbPOq"
+      );
+
+      setEmailSent(true);
+      setPage("final");
+    } catch (error) {
+      console.log("Email could not be sent:", error);
+      setPage("final");
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const flowers = useMemo(() => {
@@ -114,15 +163,17 @@ function App() {
           <h1>Will you go on a date with me?</h1>
           <p className="subtitle">Please choose carefully 🌸</p>
 
-          <div className="buttons">
+          <div className={`buttons startButtons ${yesHasMoved ? "yesMoved" : ""}`}>
             <button
-              className="btn yes runaway"
-              style={{
-                top: `${yesPosition.top}px`,
-                left: `${yesPosition.left}px`,
-              }}
-              onMouseEnter={moveYesButton}
-              onMouseMove={moveYesButton}
+              className={`btn yes ${yesHasMoved ? "runaway" : ""}`}
+              style={
+                yesHasMoved
+                  ? {
+                      top: `${yesPosition.top}px`,
+                      left: `${yesPosition.left}px`,
+                    }
+                  : undefined
+              }
               onClick={(e) => {
                 e.preventDefault();
                 moveYesButton();
@@ -248,10 +299,10 @@ function App() {
 
           <button
             className="btn yes big"
-            disabled={!date || !time}
-            onClick={() => setPage("final")}
+            disabled={!date || !time || isSending}
+            onClick={sendDateResponse}
           >
-            set the date! 💗
+            {isSending ? "sending..." : "set the date! 💗"}
           </button>
         </div>
       )}
@@ -276,6 +327,12 @@ function App() {
               <strong>Time:</strong> {time}
             </p>
           </div>
+
+          {emailSent && (
+            <p className="sentMessage">
+              Your answer has been sent 💌
+            </p>
+          )}
 
           <p className="ps">
             P.S. I hope this made you smile
