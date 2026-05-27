@@ -364,21 +364,21 @@ h1 {
   }
 
   .startButtons {
-    min-height: 240px;
+    min-height: 340px;
     margin-top: 24px;
     align-items: flex-start;
   }
 
   .startButtons .runaway {
-    width: 120px;
-    max-width: 120px;
+    width: 110px;
+    max-width: 110px;
   }
 
   .startButtons.yesMoved .no {
     width: 190px;
     max-width: 190px;
     left: 50%;
-    bottom: 10px;
+    bottom: 0;
     transform: translateX(-50%);
   }
 }

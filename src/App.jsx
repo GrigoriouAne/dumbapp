@@ -51,11 +51,11 @@ function App() {
 
     const mobilePositions = [
       { top: 0, left: 10 },
-      { top: 0, left: 150 },
-      { top: 70, left: 10 },
-      { top: 70, left: 150 },
-      { top: 135, left: 10 },
-      { top: 135, left: 150 },
+      { top: 60, left: 10 },
+      { top: 120, left: 10 },
+      { top: 0, left: 95 },
+      { top: 60, left: 95 },
+      { top: 120, left: 95 },
     ];
 
     const positions = isMobile ? mobilePositions : desktopPositions;
@@ -313,7 +313,7 @@ function App() {
 
           <h1>Glad you didn’t say no.</h1>
           <p className="subtitle">
-            Be ready, I’m coming to get you 🚗💗
+            Be ready with your helmet on… I’m coming on my horse 🐎💗
           </p>
 
           <div className="summary">
