@@ -1,0 +1,369 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Comic Sans MS", "Trebuchet MS", Arial, sans-serif;
+  background: #fff7fb;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+.app {
+  min-height: 100vh;
+  min-height: 100svh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  padding: 20px;
+  background:
+    radial-gradient(circle at top left, #ffe1ef 0, transparent 35%),
+    radial-gradient(circle at bottom right, #ffe9f4 0, transparent 35%),
+    #fff8fc;
+}
+
+.card {
+  width: min(620px, 100%);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 182, 210, 0.45);
+  border-radius: 34px;
+  box-shadow: 0 22px 70px rgba(161, 80, 116, 0.15);
+  padding: 42px 36px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.imageBox {
+  width: 110px;
+  height: 110px;
+  margin: 0 auto 22px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffe4ef;
+  font-size: 56px;
+  box-shadow: inset 0 0 0 1px rgba(255, 130, 180, 0.25);
+}
+
+.sadBunny {
+  background: #f2e9ff;
+}
+
+h1 {
+  margin: 0;
+  color: #6b243d;
+  font-size: clamp(28px, 5vw, 44px);
+  line-height: 1.13;
+  letter-spacing: 0.5px;
+}
+
+.subtitle {
+  margin: 16px 0 0;
+  color: #9b6578;
+  font-size: clamp(15px, 3vw, 18px);
+  line-height: 1.6;
+}
+
+.buttons {
+  margin-top: 30px;
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  min-height: 120px;
+  position: relative;
+}
+
+.btn {
+  border: none;
+  cursor: pointer;
+  padding: 15px 28px;
+  border-radius: 999px;
+  font-size: 17px;
+  font-weight: 800;
+  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  min-width: 120px;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.yes {
+  background: #ff8fba;
+  color: white;
+  box-shadow: 0 12px 28px rgba(255, 95, 160, 0.32);
+}
+.runaway {
+  position: relative;
+  z-index: 4;
+}
+
+.no {
+  background: #eadcff;
+  color: #6b4c87;
+}
+
+.big {
+  margin-top: 30px;
+  min-width: 180px;
+}
+
+.warning {
+  color: #b3385c;
+  font-weight: 800;
+  margin-top: 18px;
+}
+
+.choices {
+  margin: 30px 0 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.choice {
+  border: 1px solid rgba(255, 164, 202, 0.4);
+  border-radius: 25px;
+  background: #fff6fa;
+  padding: 28px 18px;
+  color: #6b243d;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 12px 32px rgba(139, 60, 96, 0.08);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.choice span {
+  display: block;
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.choice:hover,
+.choice.selected {
+  transform: translateY(-5px);
+  background: #ffe4ef;
+}
+
+.form {
+  margin: 28px auto 0;
+  text-align: left;
+  max-width: 420px;
+}
+
+.form label {
+  display: block;
+  color: #6b243d;
+  font-weight: 800;
+  margin: 16px 0 8px;
+}
+
+.form input,
+.form select {
+  width: 100%;
+  border: 1px solid rgba(107, 36, 61, 0.14);
+  background: white;
+  border-radius: 18px;
+  padding: 15px 16px;
+  color: #6b243d;
+  font-size: 16px;
+  outline: none;
+}
+
+.summary {
+  margin: 24px auto 0;
+  background: #fff3f8;
+  border-radius: 22px;
+  padding: 18px;
+  max-width: 390px;
+  color: #6b243d;
+}
+
+.summary p {
+  margin: 8px 0;
+}
+
+.ps {
+  margin: 24px auto 0;
+  max-width: 470px;
+  color: #a97888;
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.flowers {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.flower {
+  position: absolute;
+  top: -40px;
+  font-size: 24px;
+  animation-name: fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  opacity: 0.85;
+}
+
+@keyframes fall {
+  0% {
+    transform: translateY(-50px) rotate(0deg);
+  }
+
+  100% {
+    transform: translateY(110vh) rotate(360deg);
+  }
+}
+
+.shake {
+  animation: shakeScreen 0.35s linear;
+}
+
+@keyframes shakeScreen {
+  0% {
+    transform: translate(0, 0);
+  }
+
+  20% {
+    transform: translate(-8px, 5px);
+  }
+
+  40% {
+    transform: translate(8px, -5px);
+  }
+
+  60% {
+    transform: translate(-6px, 4px);
+  }
+
+  80% {
+    transform: translate(6px, -4px);
+  }
+
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.slap {
+  position: fixed;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 90px;
+  z-index: 5;
+  animation: slapPop 0.7s ease forwards;
+}
+
+@keyframes slapPop {
+  0% {
+    transform: translate(-50%, -50%) scale(0.3) rotate(-20deg);
+    opacity: 0;
+  }
+
+  35% {
+    transform: translate(-50%, -50%) scale(1.25) rotate(15deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(0.8) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .app {
+    padding: 14px;
+    align-items: center;
+  }
+
+  .card {
+    padding: 32px 20px;
+    border-radius: 28px;
+  }
+
+  .imageBox {
+    width: 92px;
+    height: 92px;
+    font-size: 48px;
+    border-radius: 24px;
+  }
+
+  .buttons {
+    gap: 12px;
+  }
+
+  .btn {
+    width: 100%;
+    max-width: 240px;
+    padding: 15px 22px;
+    font-size: 16px;
+  }
+
+  .choices {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .choice {
+    padding: 20px 16px;
+  }
+
+  .choice span {
+    font-size: 32px;
+  }
+
+  .slap {
+    font-size: 76px;
+  }
+}
+
+.musicButton {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 999;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: rgba(255, 143, 186, 0.95);
+  color: white;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(255, 95, 160, 0.28);
+}
+
+.musicButton:hover {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 600px) {
+  .musicButton {
+    top: 12px;
+    right: 12px;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+}
