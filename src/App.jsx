@@ -65,9 +65,13 @@ function App() {
   const isSendPage = window.location.pathname === "/send";
 
   const createInviteLink = () => {
+    const recipientPart = recipientEmail
+      ? `&recipient=${encodeURIComponent(recipientEmail)}`
+      : "";
+
     return `https://dumbapp.vercel.app/?sender=${encodeURIComponent(
       senderEmail
-    )}&recipient=${encodeURIComponent(recipientEmail)}`;
+    )}${recipientPart}`;
   };
 
   const sendInvitation = async () => {
@@ -102,7 +106,7 @@ function App() {
   };
 
   const generateInvitationLink = () => {
-    if (!senderEmail || !recipientEmail) return;
+    if (!senderEmail) return;
 
     const appLink = createInviteLink();
     setGeneratedInviteLink(appLink);
@@ -355,44 +359,120 @@ function App() {
 
           <h1>Send a tiny invitation</h1>
           <p className="subtitle">
-            Fill in the emails and send the little surprise.
+            Choose how you want to send the little surprise.
           </p>
 
-          <div className="form">
-            <label>Your email</label>
-            <input
-              type="email"
-              placeholder="your@email.com"
-              value={senderEmail}
-              onChange={(e) => setSenderEmail(e.target.value)}
-            />
+          {!inviteMode && (
+            <div className="sendActions">
+              <button
+                className="btn yes"
+                onClick={() => {
+                  setInviteMode("email");
+                  setGeneratedInviteLink("");
+                  setInviteSent(false);
+                  setLinkCopied(false);
+                }}
+              >
+                send via email 💌
+              </button>
 
-            <label>Who send to?</label>
-            <input
-              type="email"
-              placeholder="her@email.com"
-              value={recipientEmail}
-              onChange={(e) => setRecipientEmail(e.target.value)}
-            />
-          </div>
+              <button
+                className="btn no"
+                onClick={() => {
+                  setInviteMode("link");
+                  setRecipientEmail("");
+                  setGeneratedInviteLink("");
+                  setInviteSent(false);
+                  setLinkCopied(false);
+                }}
+              >
+                generate link 🔗
+              </button>
+            </div>
+          )}
 
-          <div className="sendActions">
-            <button
-              className="btn yes"
-              disabled={!senderEmail || !recipientEmail || inviteSending}
-              onClick={sendInvitation}
-            >
-              {inviteSending ? "sending..." : "send via email 💌"}
-            </button>
+          {inviteMode && (
+            <div className="form">
+              <label>Your email</label>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                value={senderEmail}
+                onChange={(e) => {
+                  setSenderEmail(e.target.value);
+                  setGeneratedInviteLink("");
+                  setInviteSent(false);
+                  setLinkCopied(false);
+                }}
+              />
 
-            <button
-              className="btn no"
-              disabled={!senderEmail || !recipientEmail || inviteSending}
-              onClick={generateInvitationLink}
-            >
-              generate link 🔗
-            </button>
-          </div>
+              {inviteMode === "email" && (
+                <>
+                  <label>Who send to?</label>
+                  <input
+                    type="email"
+                    placeholder="her@email.com"
+                    value={recipientEmail}
+                    onChange={(e) => {
+                      setRecipientEmail(e.target.value);
+                      setGeneratedInviteLink("");
+                      setInviteSent(false);
+                      setLinkCopied(false);
+                    }}
+                  />
+                </>
+              )}
+            </div>
+          )}
+
+          {inviteMode === "email" && (
+            <div className="sendActions">
+              <button
+                className="btn yes"
+                disabled={!senderEmail || !recipientEmail || inviteSending}
+                onClick={sendInvitation}
+              >
+                {inviteSending ? "sending..." : "send invitation 💌"}
+              </button>
+
+              <button
+                className="btn no"
+                onClick={() => {
+                  setInviteMode("");
+                  setRecipientEmail("");
+                  setGeneratedInviteLink("");
+                  setInviteSent(false);
+                  setLinkCopied(false);
+                }}
+              >
+                back
+              </button>
+            </div>
+          )}
+
+          {inviteMode === "link" && (
+            <div className="sendActions">
+              <button
+                className="btn yes"
+                disabled={!senderEmail}
+                onClick={generateInvitationLink}
+              >
+                generate link 🔗
+              </button>
+
+              <button
+                className="btn no"
+                onClick={() => {
+                  setInviteMode("");
+                  setGeneratedInviteLink("");
+                  setInviteSent(false);
+                  setLinkCopied(false);
+                }}
+              >
+                back
+              </button>
+            </div>
+          )}
 
           {inviteSent && inviteMode === "email" && (
             <p className="sentMessage">
