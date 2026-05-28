@@ -50,6 +50,9 @@ function App() {
   const [recipientEmail, setRecipientEmail] = useState("");
   const [inviteSending, setInviteSending] = useState(false);
   const [inviteSent, setInviteSent] = useState(false);
+  const [generatedInviteLink, setGeneratedInviteLink] = useState("");
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [inviteMode, setInviteMode] = useState("");
   
   const SERVICE_ID = "service_6o9zavl";
   const INVITATION_TEMPLATE_ID = "template_l1oery5";
@@ -61,14 +64,21 @@ function App() {
   const recipientFromUrl = urlParams.get("recipient") || "";
   const isSendPage = window.location.pathname === "/send";
 
+  const createInviteLink = () => {
+    return `https://dumbapp.vercel.app/?sender=${encodeURIComponent(
+      senderEmail
+    )}&recipient=${encodeURIComponent(recipientEmail)}`;
+  };
+
   const sendInvitation = async () => {
     if (!senderEmail || !recipientEmail) return;
 
     setInviteSending(true);
 
-    const appLink = `https://dumbapp.vercel.app/?sender=${encodeURIComponent(
-      senderEmail
-    )}&recipient=${encodeURIComponent(recipientEmail)}`;
+    const appLink = createInviteLink();
+    setGeneratedInviteLink(appLink);
+    setLinkCopied(false);
+    setInviteMode("email");
 
     try {
       await emailjs.send(
@@ -88,6 +98,31 @@ function App() {
       alert("Something went wrong. Try again.");
     } finally {
       setInviteSending(false);
+    }
+  };
+
+  const generateInvitationLink = () => {
+    if (!senderEmail || !recipientEmail) return;
+
+    const appLink = createInviteLink();
+    setGeneratedInviteLink(appLink);
+    setInviteSent(false);
+    setLinkCopied(false);
+    setInviteMode("link");
+  };
+
+  const copyInviteLink = async () => {
+    if (!generatedInviteLink) return;
+
+    try {
+      await navigator.clipboard.writeText(generatedInviteLink);
+      setLinkCopied(true);
+
+      setTimeout(() => {
+        setLinkCopied(false);
+      }, 6000);
+    } catch (error) {
+      console.log("Could not copy link:", error);
     }
   };
 
@@ -341,18 +376,46 @@ function App() {
             />
           </div>
 
-          <button
-            className="btn yes big"
-            disabled={!senderEmail || !recipientEmail || inviteSending}
-            onClick={sendInvitation}
-          >
-            {inviteSending ? "sending..." : "send invitation 💌"}
-          </button>
+          <div className="sendActions">
+            <button
+              className="btn yes"
+              disabled={!senderEmail || !recipientEmail || inviteSending}
+              onClick={sendInvitation}
+            >
+              {inviteSending ? "sending..." : "send via email 💌"}
+            </button>
 
-          {inviteSent && (
+            <button
+              className="btn no"
+              disabled={!senderEmail || !recipientEmail || inviteSending}
+              onClick={generateInvitationLink}
+            >
+              generate link 🔗
+            </button>
+          </div>
+
+          {inviteSent && inviteMode === "email" && (
             <p className="sentMessage">
               Invitation sent successfully 💗
             </p>
+          )}
+
+          {generatedInviteLink && (
+            <div className="inviteResult">
+              {inviteMode === "email" && (
+                <p className="subtitle smallSubtitle">
+                  You can also copy this link and send it anywhere:
+                </p>
+              )}
+
+              <div className="linkBox">
+                <span>{generatedInviteLink}</span>
+              </div>
+
+              <button className="btn no copyButton" onClick={copyInviteLink}>
+                {linkCopied ? "copied 💗" : "copy link 📋"}
+              </button>
+            </div>
           )}
         </div>
       </div>

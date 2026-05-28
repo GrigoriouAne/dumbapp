@@ -467,3 +467,50 @@ h1 {
     font-size: 13px;
   }
 }
+
+.sendActions {
+  margin-top: 30px;
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.inviteResult {
+  margin-top: 22px;
+}
+
+.smallSubtitle {
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.linkBox {
+  margin: 14px auto 0;
+  max-width: 480px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #fff3f8;
+  border: 1px solid rgba(255, 143, 186, 0.35);
+  color: #6b243d;
+  font-size: 14px;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.copyButton {
+  margin-top: 14px;
+  min-width: 160px;
+}
+
+@media (max-width: 600px) {
+  .sendActions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .sendActions .btn {
+    width: 100%;
+    max-width: 260px;
+  }
+}
