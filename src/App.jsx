@@ -46,6 +46,50 @@ function App() {
   const [time, setTime] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [senderEmail, setSenderEmail] = useState("");
+  const [recipientEmail, setRecipientEmail] = useState("");
+  const [inviteSending, setInviteSending] = useState(false);
+  const [inviteSent, setInviteSent] = useState(false);
+  
+  const SERVICE_ID = "service_6o9zavl";
+  const INVITATION_TEMPLATE_ID = "template_l1oery5";
+  const GENERIC_TEMPLATE_ID = "template_erfij4t";
+  const PUBLIC_KEY = "qB89miUVx5SLHbPOq";
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const senderFromUrl = urlParams.get("sender") || "";
+  const recipientFromUrl = urlParams.get("recipient") || "";
+  const isSendPage = window.location.pathname === "/send";
+
+  const sendInvitation = async () => {
+    if (!senderEmail || !recipientEmail) return;
+
+    setInviteSending(true);
+
+    const appLink = `https://dumbapp.vercel.app/?sender=${encodeURIComponent(
+      senderEmail
+    )}&recipient=${encodeURIComponent(recipientEmail)}`;
+
+    try {
+      await emailjs.send(
+        SERVICE_ID,
+        INVITATION_TEMPLATE_ID,
+        {
+          sender_email: senderEmail,
+          recipient_email: recipientEmail,
+          app_link: appLink,
+        },
+        PUBLIC_KEY
+      );
+
+      setInviteSent(true);
+    } catch (error) {
+      console.log("Invitation could not be sent:", error);
+      alert("Something went wrong. Try again.");
+    } finally {
+      setInviteSending(false);
+    }
+  };
 
   const moveNoButton = (event) => {
     if (!startButtonsRef.current || !noButtonRef.current || !yesButtonRef.current) return;
@@ -161,19 +205,49 @@ function App() {
   const sendDateResponse = async () => {
     if (!choice || !date || !time) return;
 
+    const finalSenderEmail = senderFromUrl || "anegrigoriou@gmail.com";
+    const finalRecipientEmail = recipientFromUrl || "unknown recipient";
+
     setIsSending(true);
 
     try {
       await emailjs.send(
-        "service_6o9zavl",
-        "template_erfij4t",
+        SERVICE_ID,
+        GENERIC_TEMPLATE_ID,
         {
-          plan: choice,
-          date: date,
-          time: time,
+          to_email: finalSenderEmail,
+          reply_to: finalRecipientEmail,
+          subject: "She answered your date app 💗",
+          message: `Someone answered your date app 💗
+
+  Recipient: ${finalRecipientEmail}
+
+  Plan: ${choice}
+  Date: ${date}
+  Time: ${time}`,
         },
-        "qB89miUVx5SLHbPOq"
+        PUBLIC_KEY
       );
+
+      if (recipientFromUrl) {
+        await emailjs.send(
+          SERVICE_ID,
+          GENERIC_TEMPLATE_ID,
+          {
+            to_email: finalRecipientEmail,
+            reply_to: finalSenderEmail,
+            subject: "Your date is set 💗",
+            message: `You accepted the invitation 💗
+
+  Plan: ${choice}
+  Date: ${date}
+  Time: ${time}
+
+  Get ready ✨`,
+          },
+          PUBLIC_KEY
+        );
+      }
 
       setEmailSent(true);
       setPage("final");
@@ -220,6 +294,70 @@ function App() {
     doSlap();
     setSadStep((prev) => prev + 1);
   };
+
+  if (isSendPage) {
+    return (
+      <div className="app">
+        <div className="flowers">
+          {flowers.map((flower, index) => (
+            <span
+              key={index}
+              className="flower"
+              style={{
+                left: `${flower.left}%`,
+                animationDelay: `${flower.delay}s`,
+                animationDuration: `${flower.duration}s`,
+                fontSize: `${flower.size}px`,
+              }}
+            >
+              🌸
+            </span>
+          ))}
+        </div>
+
+        <div className="card">
+          <div className="imageBox">💌</div>
+
+          <h1>Send a tiny invitation</h1>
+          <p className="subtitle">
+            Fill in the emails and send the little surprise.
+          </p>
+
+          <div className="form">
+            <label>Your email</label>
+            <input
+              type="email"
+              placeholder="your@email.com"
+              value={senderEmail}
+              onChange={(e) => setSenderEmail(e.target.value)}
+            />
+
+            <label>Who send to?</label>
+            <input
+              type="email"
+              placeholder="her@email.com"
+              value={recipientEmail}
+              onChange={(e) => setRecipientEmail(e.target.value)}
+            />
+          </div>
+
+          <button
+            className="btn yes big"
+            disabled={!senderEmail || !recipientEmail || inviteSending}
+            onClick={sendInvitation}
+          >
+            {inviteSending ? "sending..." : "send invitation 💌"}
+          </button>
+
+          {inviteSent && (
+            <p className="sentMessage">
+              Invitation sent successfully 💗
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`app ${shake ? "shake" : ""}`}>
