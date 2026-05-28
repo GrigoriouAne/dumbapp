@@ -217,8 +217,8 @@ function App() {
         {
           to_email: finalSenderEmail,
           reply_to: finalRecipientEmail,
-          subject: "She answered your date app 💗",
-          message: `Someone answered your date app 💗
+          subject: "Someone answered your date app 💗",
+          message: `
 
   Recipient: ${finalRecipientEmail}
 
